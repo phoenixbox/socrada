@@ -24,6 +24,7 @@ group :assets do
 end
 
 group :development, :test do
+  gem 'guard-rspec'
   gem 'cane'
   gem 'capybara'
   gem 'debugger'
