@@ -28,7 +28,7 @@ group :development, :test do
   gem 'cane'
   gem 'capybara'
   gem 'debugger'
-  gem 'factory_girl_rails'
+  gem 'factory_girl_rails', "~> 4.0"
   gem 'launchy'
   gem 'mock_redis'
   gem 'rack_session_access'

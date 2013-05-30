@@ -2,7 +2,7 @@ require 'spec_helper'
 
 feature 'unauthenticated user can visit the hompeage' do
 
-  context "unauthenticated user visits the root_url" do
+  context "they visit the root_url" do
 
     it "displays the cover title" do
       visit root_url
@@ -32,8 +32,30 @@ feature 'unauthenticated user can visit the hompeage' do
       }
     end
 
-    xit "twitter login button authenticates and redirects to the users profile" do
+    context "login through twitter with valid credentials" do
+      before(:each) do
+        visit 'http://lvh.me:3000/'
+        mock_auth_hash
+      end
+
+      it "validates and redirects to the users profile" do
+        click_link('twitter-login')
+        expect(page).to have_content("Signed in")
+      end
     end
+
+    context "login through twitter with invalid credentials" do
+      before(:each) do
+        visit 'http://lvh.me:3000/'
+        invalid_mock_auth_hash
+      end
+
+      it "invalidates and redirects to the users profile" do
+        click_link('twitter-login')
+        expect(current_path).to eq root_path
+      end
+    end
+
   end
 
 end

@@ -13,6 +13,7 @@ require 'rack_session_access/capybara'
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
+  config.include(OmniauthMacros)
 
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
