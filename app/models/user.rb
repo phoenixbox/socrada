@@ -6,10 +6,16 @@ class User < ActiveRecord::Base
   end
 
   def self.create_from_omniauth(auth)
+    binding.pry
+    info = auth["extra"]["raw_info"]
     create! do |user|
-      user.uid = auth["uid"]
-      user.name = auth["info"]["nickname"]
-      user.image_url = auth["info"]["image"]
+      user.uid = info["id"]
+      user.name = info["name"]
+      user.screen_name = info["screen_name"]
+      user.profile_image_url = info["profile_image_url"]
+      user.statuses_count = info["statuses_count"]
+      user.followers_count = info["followers_count"]
+      user.friends_count = info["friends_count"]
     end
   end
 end
