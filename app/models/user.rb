@@ -34,13 +34,27 @@ class User < ActiveRecord::Base
     User.twitter_connection
     twitter = Twitter::Client.new
     friends = twitter.friends(screen_name)
-    friends.collection.map{|friend|{friend.id=>friend.screen_name}}
+    friends.collection.map{|friend|friend.screen_name}
   end
 
-   def self.get_twitter_followers(screen_name)
+  def self.get_twitter_followers(screen_name)
     User.twitter_connection
     twitter = Twitter::Client.new
-    friends = twitter.followers(screen_name)
-    friends.collection.map{|friend|{friend.id=>friend.screen_name}}
+    followers = twitter.followers(screen_name)
+    followers.collection.map{|friend|friend.screen_name}
+  end
+
+  def self.get_mutual(screen_name)
+    User.get_twitter_followers(screen_name) & User.get_twitter_friends(screen_name)
+  end
+
+  def self.get_friends(screen_name)
+    User.get_twitter_friends(screen_name) - User.get_mutual(screen_name)
+  end
+
+  def self.get_followers(screen_name)
+    User.get_twitter_followers(screen_name) - User.get_mutual(screen_name)
   end
 end
+
+# real_followers = User.get_followers("sdjrog")
