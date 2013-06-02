@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
   attr_accessible :name, :provider, :uid
   serialize :authorizations, ActiveRecord::Coders::Hstore
 
+  has_one :twitter_relationship
+
   # TODO: run again on further integrations
   def self.create_auth_methods
     %w[twitter_access_token twitter_access_secret].each do |key|
@@ -36,6 +38,7 @@ class User < ActiveRecord::Base
         twitter_access_secret: auth["credentials"]["secret"]}
       User.create_auth_methods
       # call to Twitter on user creation
+      User.get_friends(user.screen_name, user)
       # get_twitter_followers(user.screen_name)
     end
   end
@@ -63,6 +66,9 @@ class User < ActiveRecord::Base
     followers.collection.map{|friend|friend.screen_name}
   end
 
+  # need to take the results of these methods and store them in a relationship table
+  # where the fields will be hstore
+
   def self.get_mutual(screen_name, user)
     followers = User.get_twitter_followers(screen_name, user)
     friends = User.get_twitter_friends(screen_name, user)
@@ -72,7 +78,8 @@ class User < ActiveRecord::Base
   def self.get_friends(screen_name, user)
     friends = User.get_twitter_friends(screen_name, user)
     mutuals = User.get_mutual(screen_name, user)
-    friends - mutuals
+    twitter_friends = friends - mutuals
+    TwitterRelationship.create_friends(twitter_friends, user.id)
   end
 
   def self.get_followers(screen_name, user)
