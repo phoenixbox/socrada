@@ -1,6 +1,24 @@
 class User < ActiveRecord::Base
-  attr_accessible :name, :provider, :uid
+  attr_accessible :name, :provider, :uid, :twitter_access_token
+  serialize :authorizations, ActiveRecord::Coders::Hstore
 
+  def twitter_access_token
+    autorizations && authorizations["twitter_access_token"]
+  end
+
+  def twitter_access_token=(value)
+    self.authorizations = (authorizations || {}).merge("twitter_access_token"=>value)
+  end
+
+  def twitter_access_secret
+    autorizations && authorizations["twitter_access_secret"]
+  end
+
+  def twitter_access_secret=(value)
+    self.authorizations = (authorizations || {}).merge("twitter_access_secret"=>value)
+  end
+
+# ********************
   def self.from_omniauth(auth)
     where(auth.slice("provider", "uid")).first || create_from_omniauth(auth)
   end
@@ -15,9 +33,13 @@ class User < ActiveRecord::Base
       user.statuses_count = info["statuses_count"]
       user.followers_count = info["followers_count"]
       user.friends_count = info["friends_count"]
-      # call to Twitter for that user
-      get_twitter_friends(user.screen_name)
-      get_twitter_followers(user.screen_name)
+      binding.pry
+      user.authorizations = {
+        twitter_access_token: auth["credentials"]["token"],
+        twitter_access_secret: auth["credentials"]["secret"]}
+      # call to Twitter on user creation
+      # get_twitter_friends(user.screen_name)
+      # get_twitter_followers(user.screen_name)
     end
   end
 

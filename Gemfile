@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
+
+gem 'activerecord-postgres-hstore'
 gem 'better_errors'
 gem 'binding_of_caller'
 gem 'figaro'
