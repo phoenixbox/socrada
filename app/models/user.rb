@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   serialize :authorizations, ActiveRecord::Coders::Hstore
 
   def twitter_access_token
-    autorizations && authorizations["twitter_access_token"]
+    authorizations && authorizations["twitter_access_token"]
   end
 
   def twitter_access_token=(value)
@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   end
 
   def twitter_access_secret
-    autorizations && authorizations["twitter_access_secret"]
+    authorizations && authorizations["twitter_access_secret"]
   end
 
   def twitter_access_secret=(value)
