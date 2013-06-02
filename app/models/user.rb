@@ -87,6 +87,11 @@ class User < ActiveRecord::Base
     mutuals = User.get_mutual(screen_name, user)
     followers - mutuals
   end
+
+  def self.twitter_friends(uid)
+    twitter_relationship = TwitterRelationship.where("uid = #{uid}")
+    twitter_relationship[0].friends.map{|k,v|k}
+  end
 end
 
 # real_followers = User.get_followers("sdjrog")
