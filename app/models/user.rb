@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessible :name, :provider, :uid, :twitter_access_token
+  attr_accessible :name, :provider, :uid
   serialize :authorizations, ActiveRecord::Coders::Hstore
 
   # TODO: run again on further integrations
@@ -31,50 +31,54 @@ class User < ActiveRecord::Base
       user.statuses_count = info["statuses_count"]
       user.followers_count = info["followers_count"]
       user.friends_count = info["friends_count"]
-      binding.pry
       user.authorizations = {
         twitter_access_token: auth["credentials"]["token"],
         twitter_access_secret: auth["credentials"]["secret"]}
       User.create_auth_methods
       # call to Twitter on user creation
-      # get_twitter_friends(user.screen_name)
       # get_twitter_followers(user.screen_name)
     end
   end
 
-  def self.twitter_connection
+  def self.twitter_connect(user)
     Twitter.configure do |config|
       config.consumer_key = ENV["TWITTER_CONSUMER_KEY"]
       config.consumer_secret = ENV["TWITTER_CONSUMER_SECRET"]
-      config.oauth_token = ENV["TWITTER_ACCESS_TOKEN"]
-      config.oauth_token_secret = ENV["TWITTER_ACCESS_SECRET"]
+      config.oauth_token = user["authorizations"][:twitter_access_token]
+      config.oauth_token_secret = user["authorizations"][:twitter_access_secret]
     end
   end
 
-  def self.get_twitter_friends(screen_name)
-    User.twitter_connection
+  def self.get_twitter_friends(screen_name, user)
+    User.twitter_connect(user)
     twitter = Twitter::Client.new
     friends = twitter.friends(screen_name)
     friends.collection.map{|friend|friend.screen_name}
   end
 
-  def self.get_twitter_followers(screen_name)
-    User.twitter_connection
+  def self.get_twitter_followers(screen_name, user)
+    User.twitter_connect(user)
     twitter = Twitter::Client.new
     followers = twitter.followers(screen_name)
     followers.collection.map{|friend|friend.screen_name}
   end
 
-  def self.get_mutual(screen_name)
-    User.get_twitter_followers(screen_name) & User.get_twitter_friends(screen_name)
+  def self.get_mutual(screen_name, user)
+    followers = User.get_twitter_followers(screen_name, user)
+    friends = User.get_twitter_friends(screen_name, user)
+    followers & friends
   end
 
-  def self.get_friends(screen_name)
-    User.get_twitter_friends(screen_name) - User.get_mutual(screen_name)
+  def self.get_friends(screen_name, user)
+    friends = User.get_twitter_friends(screen_name, user)
+    mutuals = User.get_mutual(screen_name, user)
+    friends - mutuals
   end
 
-  def self.get_followers(screen_name)
-    User.get_twitter_followers(screen_name) - User.get_mutual(screen_name)
+  def self.get_followers(screen_name, user)
+    followers = User.get_twitter_followers(screen_name, user)
+    mutuals = User.get_mutual(screen_name, user)
+    followers - mutuals
   end
 end
 
