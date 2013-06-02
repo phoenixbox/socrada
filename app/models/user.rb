@@ -79,7 +79,7 @@ class User < ActiveRecord::Base
     friends = User.get_twitter_friends(screen_name, user)
     mutuals = User.get_mutual(screen_name, user)
     twitter_friends = friends - mutuals
-    TwitterRelationship.create_friends(twitter_friends, user.id)
+    TwitterRelationship.create_friends(twitter_friends, user.uid)
   end
 
   def self.get_followers(screen_name, user)

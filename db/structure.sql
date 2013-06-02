@@ -52,6 +52,40 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: twitter_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE twitter_relationships (
+    id integer NOT NULL,
+    friends hstore,
+    followers hstore,
+    mutual hstore,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    uid integer
+);
+
+
+--
+-- Name: twitter_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE twitter_relationships_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: twitter_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE twitter_relationships_id_seq OWNED BY twitter_relationships.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -95,7 +129,22 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY twitter_relationships ALTER COLUMN id SET DEFAULT nextval('twitter_relationships_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: twitter_relationships_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY twitter_relationships
+    ADD CONSTRAINT twitter_relationships_pkey PRIMARY KEY (id);
 
 
 --
@@ -141,3 +190,9 @@ INSERT INTO schema_migrations (version) VALUES ('20130601230946');
 INSERT INTO schema_migrations (version) VALUES ('20130601231334');
 
 INSERT INTO schema_migrations (version) VALUES ('20130601231509');
+
+INSERT INTO schema_migrations (version) VALUES ('20130602052152');
+
+INSERT INTO schema_migrations (version) VALUES ('20130602053145');
+
+INSERT INTO schema_migrations (version) VALUES ('20130602060519');
