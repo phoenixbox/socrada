@@ -2,7 +2,7 @@
   <% if current_user %>
   Signed in as <%= current_user.name %> | <%= link_to "Sign-out", signout_path%>
   <% end %>
-</div>
+</div> <!-- end of #tnavbar-->
 <div id="twitter-friends">
   <h2>Twitter Friends</h2>
   <% @twitter_friends.each do |friend|%>
@@ -12,4 +12,4 @@
     </li>
   </ul>
   <%end%>
-</div>
+</div> <!-- end of #twitter-friends-->

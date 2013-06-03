@@ -52,6 +52,9 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.get_twitter_data
+  end
+
   def self.get_twitter_friends(screen_name, user)
     User.twitter_connect(user)
     twitter = Twitter::Client.new
