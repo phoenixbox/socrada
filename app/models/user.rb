@@ -38,7 +38,7 @@ class User < ActiveRecord::Base
         twitter_access_secret: auth["credentials"]["secret"]}
       User.create_auth_methods
       # call to Twitter on user creation
-      User.get_friends(user.screen_name, user)
+      User.get_twitter_data(user.screen_name, user)
       # get_twitter_followers(user.screen_name)
     end
   end
@@ -52,7 +52,11 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.get_twitter_data
+  def self.get_twitter_data(screen_name, user)
+    twitter_friends = User.get_friends(screen_name, user)
+    twitter_followers = User.get_followers(screen_name, user)
+    twitter_mutual = User.get_mutual(screen_name, user)
+    TwitterRelationship.create_friends(twitter_friends, twitter_followers, twitter_mutual, user.uid)
   end
 
   def self.get_twitter_friends(screen_name, user)
@@ -81,8 +85,7 @@ class User < ActiveRecord::Base
   def self.get_friends(screen_name, user)
     friends = User.get_twitter_friends(screen_name, user)
     mutuals = User.get_mutual(screen_name, user)
-    twitter_friends = friends - mutuals
-    TwitterRelationship.create_friends(twitter_friends, user.uid)
+    friends - mutuals
   end
 
   def self.get_followers(screen_name, user)
@@ -94,6 +97,18 @@ class User < ActiveRecord::Base
   def self.twitter_friends(uid)
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
     twitter_relationship[0].friends.map{|k,v|k}
+  end
+
+  def self.twitter_followers(uid)
+    twitter_relationship = TwitterRelationship.where("uid = #{uid}")
+    binding.pry
+    twitter_relationship[0].followers.map{|k,v|k}
+  end
+
+  def self.twitter_mutual(uid)
+    twitter_relationship = TwitterRelationship.where("uid = #{uid}")
+    binding.pry
+    twitter_relationship[0].mutual.map{|k,v|k}
   end
 end
 

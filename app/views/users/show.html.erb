@@ -3,6 +3,7 @@
   Signed in as <%= current_user.name %> | <%= link_to "Sign-out", signout_path%>
   <% end %>
 </div> <!-- end of #tnavbar-->
+<!-- TODO: Extract to partial -->
 <div id="twitter-friends">
   <h2>Twitter Friends</h2>
   <% @twitter_friends.each do |friend|%>
@@ -13,3 +14,25 @@
   </ul>
   <%end%>
 </div> <!-- end of #twitter-friends-->
+<br>
+<div id="twitter-followers">
+  <h2>Twitter Followers</h2>
+  <% @twitter_followers.each do |follower|%>
+  <ul>
+    <li>
+      <%= p follower %>
+    </li>
+  </ul>
+  <%end%>
+</div> <!-- end of #twitter-followers-->
+<br>
+<div id="twitter-mutual">
+  <h2>Twitter Mutual</h2>
+  <% @twitter_mutual.each do |mutual|%>
+  <ul>
+    <li>
+      <%= p mutual %>
+    </li>
+  </ul>
+  <%end%>
+</div> <!-- end of #twitter-mutual-->
