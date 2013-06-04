@@ -2,13 +2,26 @@
 <html>
 <head>
   <title>Socrada</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <div id="container">
+    <div id="navbar">
+      <div id="login-info">
+        <% if current_user %>
+        Signed in as <%= current_user.name %> | <%= link_to "Sign-out", signout_path%>
+        <% end %>
+      </div><!-- end of #login-info-->
+    </div><!-- end of #navbar-->
+    <div id="maincontent">
 
-  <%= yield %>
+    <%= yield %>
 
+    </div><!-- end of #maincontent-->
+  </div><!-- end of #container-->
 </body>
 </html>

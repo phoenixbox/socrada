@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
     twitter_friends = User.get_friends(screen_name, user)
     twitter_followers = User.get_followers(screen_name, user)
     twitter_mutual = User.get_mutual(screen_name, user)
-    TwitterRelationship.create_friends(twitter_friends, twitter_followers, twitter_mutual, user.uid)
+    TwitterRelationship.create_twitter_data(twitter_friends, twitter_followers, twitter_mutual, user.uid)
   end
 
   def self.get_twitter_friends(screen_name, user)
@@ -101,13 +101,11 @@ class User < ActiveRecord::Base
 
   def self.twitter_followers(uid)
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
-    binding.pry
     twitter_relationship[0].followers.map{|k,v|k}
   end
 
   def self.twitter_mutual(uid)
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
-    binding.pry
     twitter_relationship[0].mutual.map{|k,v|k}
   end
 end

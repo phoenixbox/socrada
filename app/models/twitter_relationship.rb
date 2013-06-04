@@ -6,7 +6,7 @@ class TwitterRelationship < ActiveRecord::Base
 
   belongs_to :user
 
-  def self.create_friends(twitter_friends, twitter_followers, twitter_mutual, user_uid)
+  def self.create_twitter_data(twitter_friends, twitter_followers, twitter_mutual, user_uid)
     # find twitter_relationship by uid
     # if doesnt exist create it
     # if it does then update it
