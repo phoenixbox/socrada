@@ -1,8 +1,18 @@
 class User < ActiveRecord::Base
+
+  attr_reader :user_node
   attr_accessible :name, :provider, :uid
   serialize :authorizations, ActiveRecord::Coders::Hstore
 
   has_one :twitter_relationship
+
+  def self.current_user
+    Thread.current[:current_user]
+  end
+
+  def self.current_user=(user)
+    Thread.current[:current_user] = user
+  end
 
   # TODO: run again on further integrations
   def self.create_auth_methods
@@ -38,6 +48,7 @@ class User < ActiveRecord::Base
         twitter_access_secret: auth["credentials"]["secret"]}
       User.create_auth_methods
       # call to Twitter on user creation
+
       User.get_twitter_data(user.screen_name, user)
       # get_twitter_followers(user.screen_name)
     end
@@ -52,11 +63,31 @@ class User < ActiveRecord::Base
     end
   end
 
+  # ****************************************************************************
+
   def self.get_twitter_data(screen_name, user)
     twitter_friends = User.get_friends(screen_name, user)
     twitter_followers = User.get_followers(screen_name, user)
     twitter_mutual = User.get_mutual(screen_name, user)
     TwitterRelationship.create_twitter_data(twitter_friends, twitter_followers, twitter_mutual, user.uid)
+  end
+
+  def self.get_mutual(screen_name, user)
+    followers = User.get_twitter_followers(screen_name, user)
+    friends = User.get_twitter_friends(screen_name, user)
+    @twitter_mutuals = followers & friends
+  end
+
+  def self.get_friends(screen_name, user)
+    friends = User.get_twitter_friends(screen_name, user)
+    mutuals = User.get_mutual(screen_name, user)
+    @twitter_friends = friends - mutuals
+  end
+
+  def self.get_followers(screen_name, user)
+    followers = User.get_twitter_followers(screen_name, user)
+    mutuals = User.get_mutual(screen_name, user)
+    @twitter_followers = followers - mutuals
   end
 
   def self.get_twitter_friends(screen_name, user)
@@ -73,26 +104,6 @@ class User < ActiveRecord::Base
     followers.collection.map{|friend|friend.screen_name}
   end
 
-  # need to take the results of these methods and store them in a relationship table
-  # where the fields will be hstore
-
-  def self.get_mutual(screen_name, user)
-    followers = User.get_twitter_followers(screen_name, user)
-    friends = User.get_twitter_friends(screen_name, user)
-    followers & friends
-  end
-
-  def self.get_friends(screen_name, user)
-    friends = User.get_twitter_friends(screen_name, user)
-    mutuals = User.get_mutual(screen_name, user)
-    friends - mutuals
-  end
-
-  def self.get_followers(screen_name, user)
-    followers = User.get_twitter_followers(screen_name, user)
-    mutuals = User.get_mutual(screen_name, user)
-    followers - mutuals
-  end
 
   def self.twitter_friends(uid)
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
@@ -108,6 +119,135 @@ class User < ActiveRecord::Base
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
     twitter_relationship[0].mutual.map{|k,v|k}
   end
-end
 
-# real_followers = User.get_followers("sdjrog")
+   def cypher_all_nodes
+    "START n=node(*) RETURN n"
+  end
+
+  def self.current_user_node
+    screen_name = User.current_user["screen_name"]
+    User.neo.get_node_index("users","name",screen_name)
+  end
+
+  def self.add_to_users_index(node)
+    User.neo.add_node_to_index( "users",
+                                node["data"].keys[0],
+                                node["data"].values[0], 
+                                node
+                                )
+  end
+
+  # TODO: Remove instance reference if attr_reader works
+  def self.create_graph
+    # find or create users index
+    indexes = User.neo.list_node_indexes
+    unless indexes.has_key?("users")
+      User.neo.create_node_index("users")
+    end
+    # does the current user node exist?
+    node = User.current_user_node rescue nil
+    if node.nil?
+
+      @current_user_node = User.neo.create_node(:name=>User.current_user[:screen_name])
+
+      # ************
+      # add node to index
+      User.add_to_users_index(@current_user_node)
+
+      friends = @twitter_friends
+      friends.each do |friend|
+        friend_node = User.neo.create_node(:name=>friend)
+        # ************
+        User.add_to_users_index(friend_node)
+        User.neo.create_relationship("friends", @current_user_node, friend_node)
+      end
+
+      followers = @twitter_followers
+      followers.each do |follower|
+        follower_node = User.neo.create_node(:name=>follower)
+        User.add_to_users_index(follower_node)
+        User.neo.create_relationship("follower", follower_node, @current_user_node)
+      end
+
+      mutuals = @twitter_mutuals
+      mutuals.each do |mutual|
+        mutual_node = User.neo.create_node(:name=>mutual)
+        User.add_to_users_index(mutual_node)
+        User.neo.create_relationship("mutual", @current_user_node, mutual_node)
+        User.neo.create_relationship("mutual", mutual_node, @current_user_node)
+      end
+    else
+      graph_exists = User.neo.get_node_properties(node)
+      return if graph_exists && graph_exists['name']
+    end
+  end
+
+  def self.neighbours
+    {"order"         => "depth first",
+     "uniqueness"    => "none",
+     "return filter" => {"language" => "builtin", "name" => "all_but_start_node"},
+     "depth"         => 1}
+  end
+
+  def self.node_id(node)
+    case node
+      when Hash
+        node["self"].split('/').last
+      when String
+        node.split('/').last
+      else
+        node
+    end
+  end
+
+  def self.get_properties(node)
+    properties = "<ul>"
+    node["data"].each_pair do |key, value|
+        properties << "<li><b>#{key}:</b> #{value}</li>"
+      end
+    properties + "</ul>"
+  end
+
+  def self.get_connections
+    User.create_graph
+    binding.pry
+    node = User.current_user_node[0]
+    connections = User.neo.traverse(node, "fullpath", User.neighbours)
+    incoming = Hash.new{|h, k| h[k] = []}
+    outgoing = Hash.new{|h, k| h[k] = []}
+    nodes = Hash.new
+    attributes = Array.new
+
+    connections.each do |c|
+       c["nodes"].each do |n|
+         nodes[n["self"]] = n["data"]
+       end
+       rel = c["relationships"][0]
+
+       if rel["end"] == node["self"]
+         incoming["Incoming:#{rel["type"]}"] << {:values => nodes[rel["start"]].merge({:id => User.node_id(rel["start"]) }) }
+       else
+         outgoing["Outgoing:#{rel["type"]}"] << {:values => nodes[rel["end"]].merge({:id => User.node_id(rel["end"]) }) }
+       end
+    end
+
+    incoming.merge(outgoing).each_pair do |key, value|
+      attributes << {:id => key.split(':').last, :name => key, :values => value.collect{|v| v[:values]} }
+    end
+
+    attributes = [{"name" => "No Relationships","name" => "No Relationships","values" => [{"id" => "#{params[:id]}","name" => "No Relationships "}]}] if attributes.empty?
+
+    @node = {:details_html => "<h2>Neo ID: #{User.node_id(node)}</h2>\n<p class='summary'>\n#{User.get_properties(node)}</p>\n",
+              :data => {:attributes => attributes, 
+                        :name => node["data"]["name"],
+                        :id => User.node_id(node)}
+            }
+
+    @node.to_json
+  end
+
+  def self.neo
+    @neo = Neography::Rest.new(ENV['NEO4J_URL'] || "http://localhost:7474")
+  end
+
+end
