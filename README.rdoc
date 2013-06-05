@@ -8,8 +8,18 @@ Socrada will turn your social media relationships into visual graphs whereby you
 
 2. cd into the socrada directory
 
-3. Run rails s from the command line to start the server
+3. Run:
 
-4. Run x y z
+  rake db:create
+  rake db:migrate
+  rake neo4j:install
+  rake neo4j:start
+  Install and Start Redis (redis-server)
+  export TWITTER_CONSUMER_KEY="your twitter consumer key"
+  export TWITTER_CONSUMER_SECRET="your twitter consumer secret"
 
-5. Visit localhost:3000 to see socrada running locally
+4. Run rails s from the command line to start the server
+
+5. Run x y z
+
+6. Visit localhost:3000 to see socrada running locally
