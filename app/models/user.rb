@@ -134,7 +134,6 @@ class User < ActiveRecord::Base
 # REFACTOR
 
   def self.create_friends_nodes
-    binding.pry
     friends = @twitter_friends
     friends.each do |friend|
       friend_node = User.neo.create_node(:name=>friend)
