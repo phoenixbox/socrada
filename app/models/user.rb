@@ -134,12 +134,32 @@ class User < ActiveRecord::Base
 # REFACTOR
 
   def self.create_friends_nodes
+    binding.pry
+    friends = @twitter_friends
+    friends.each do |friend|
+      friend_node = User.neo.create_node(:name=>friend)
+      User.add_to_users_index(friend_node)
+      User.neo.create_relationship("friends", @current_user_node, friend_node)
+    end
   end
 
   def self.create_follower_nodes
+    followers = @twitter_followers
+    followers.each do |follower|
+      follower_node = User.neo.create_node(:name=>follower)
+      User.add_to_users_index(follower_node)
+      User.neo.create_relationship("follower", follower_node, @current_user_node)
+    end
   end
 
   def self.create_mutual_nodes
+    mutuals = @twitter_mutuals
+    mutuals.each do |mutual|
+      mutual_node = User.neo.create_node(:name=>mutual)
+      User.add_to_users_index(mutual_node)
+      User.neo.create_relationship("mutual", @current_user_node, mutual_node)
+      User.neo.create_relationship("mutual", mutual_node, @current_user_node)
+    end
   end
 
   def self.create_indexes
@@ -154,32 +174,11 @@ class User < ActiveRecord::Base
     User.create_indexes
     node = User.current_user_node rescue nil
     if node.nil?
-
       @current_user_node = User.neo.create_node(:name=>User.current_user[:screen_name])
-
       User.add_to_users_index(@current_user_node)
-
-      friends = @twitter_friends
-      friends.each do |friend|
-        friend_node = User.neo.create_node(:name=>friend)
-        User.add_to_users_index(friend_node)
-        User.neo.create_relationship("friends", @current_user_node, friend_node)
-      end
-
-      followers = @twitter_followers
-      followers.each do |follower|
-        follower_node = User.neo.create_node(:name=>follower)
-        User.add_to_users_index(follower_node)
-        User.neo.create_relationship("follower", follower_node, @current_user_node)
-      end
-
-      mutuals = @twitter_mutuals
-      mutuals.each do |mutual|
-        mutual_node = User.neo.create_node(:name=>mutual)
-        User.add_to_users_index(mutual_node)
-        User.neo.create_relationship("mutual", @current_user_node, mutual_node)
-        User.neo.create_relationship("mutual", mutual_node, @current_user_node)
-      end
+      User.create_friends_nodes
+      User.create_follower_nodes
+      User.create_mutual_nodes
     else
       graph_exists = User.neo.get_node_properties(node)
       return if graph_exists && graph_exists['name']
