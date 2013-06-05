@@ -99,7 +99,6 @@ class User < ActiveRecord::Base
     followers.collection.map{|friend|friend.screen_name}
   end
 
-
   def self.twitter_friends(uid)
     twitter_relationship = TwitterRelationship.where("uid = #{uid}")
     twitter_relationship[0].friends.map{|k,v|k}
@@ -115,7 +114,7 @@ class User < ActiveRecord::Base
     twitter_relationship[0].mutual.map{|k,v|k}
   end
 
-   def cypher_all_nodes
+  def cypher_all_nodes
     "START n=node(*) RETURN n"
   end
 
@@ -151,6 +150,7 @@ class User < ActiveRecord::Base
   end
 
   def self.create_graph
+    binding.pry
     User.create_indexes
     node = User.current_user_node rescue nil
     if node.nil?
