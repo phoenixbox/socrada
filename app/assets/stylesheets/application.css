@@ -41,6 +41,69 @@ body,html{
   height:100%;
 }
 
+/* // A. Neo Styles */
+/* ################################################################ */
+
+a {
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #000;
+  /*border-bottom: 2px solid #000;*/
+}
+
+html {
+  overflow-x: hidden;
+}
+
+section#content {
+  display: none;
+  position: absolute;
+  top: 200px;
+  bottom: 200px;
+  left: 0px;
+  right: 0px;
+  margin-top: 5px;
+  margin: auto;
+  width: 400px;
+}
+
+p.summary img {
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+ul.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+ul.links li {
+  margin: 0;
+  margin-bottom: 3px;
+}
+
+ul.links li:hover {
+  margin-bottom: 2px;
+  border-bottom: 1px solid #000;
+}
+
+ul.links li a {
+  width: auto;
+}
+
+section#infovis {
+  display: none;
+  height:550px;
+  overflow: hidden;
+  background-color:#F4F4F4;
+}
+
 /* // 3. NAVBAR */
 /* ################################################################ */
 
@@ -74,7 +137,7 @@ body,html{
 }
 
 #inner-content {
-  background: #ff8b9b;
+  background: #d2d2d2;
   border: 0.5px solid;
   height: 99%;
   width: 99%;
@@ -91,7 +154,7 @@ body,html{
 }
 
 #chord {
-  background: #ffc279;
+  background: #ffffff;
   border: 0.5px solid;
   width: 49%;
   height: 99%;

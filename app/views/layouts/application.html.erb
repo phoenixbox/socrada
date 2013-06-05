@@ -2,10 +2,14 @@
 <html>
 <head>
   <title>Socrada</title>
+  <%= include_gon %>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
+  <%= javascript_include_tag "ui" %>
+  <%= javascript_include_tag "d3.v3" %>
+  <%= javascript_include_tag "processing" %>
   <%= csrf_meta_tags %>
 </head>
 <body>

@@ -27,7 +27,7 @@ Attributes = {
   expanded: false,
   adjustHeight: function() {
     $('#attributes').height($('#sidebar').height()-$('#topic').height());
-//    console.log("adjusted height");
+   console.log("adjusted height");
   },
   init: function(donut) {
     $('ul.attributes').empty();

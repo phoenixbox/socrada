@@ -210,7 +210,6 @@ class User < ActiveRecord::Base
 
   def self.get_connections
     User.create_graph
-    binding.pry
     node = User.current_user_node[0]
     connections = User.neo.traverse(node, "fullpath", User.neighbours)
     incoming = Hash.new{|h, k| h[k] = []}

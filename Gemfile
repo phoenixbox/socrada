@@ -17,6 +17,9 @@ gem 'resque-scheduler', :require => 'resque_scheduler'
 gem 'rake'
 gem 'redis', "~> 3.0.3"
 gem 'twitter'
+gem 'gon'
+gem 'haml-rails'
+gem 'd3-rails'
 
 # Gems used only for assets and not required
 # in production environments by default.

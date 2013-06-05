@@ -5,7 +5,10 @@ class UsersController < ApplicationController
     @twitter_friends = User.twitter_friends(current_user.uid) 
     @twitter_followers = User.twitter_followers(current_user.uid)
     @twitter_mutual = User.twitter_mutual(current_user.uid)
-    @node = User.get_connections
+    gon.node = User.get_connections
+    # respond_to do |format|
+    #   format.json { render json: @node }
+    # end
     respond_with(@node)
   end
 end

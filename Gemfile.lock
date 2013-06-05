@@ -59,6 +59,8 @@ GEM
       execjs
     coffee-script-source (1.6.2)
     columnize (0.3.6)
+    d3-rails (0.0.5)
+      railties (>= 3.1)
     debug_inspector (0.0.2)
     debugger (1.6.0)
       columnize (>= 0.3.1)
@@ -82,6 +84,9 @@ GEM
       bundler (~> 1.0)
       rails (>= 3, < 5)
     formatador (0.2.4)
+    gon (4.1.1)
+      actionpack (>= 2.3.0)
+      json
     guard (1.8.0)
       formatador (>= 0.2.4)
       listen (>= 1.0.0)
@@ -91,6 +96,13 @@ GEM
     guard-rspec (3.0.0)
       guard (>= 1.8)
       rspec (~> 2.13)
+    haml (4.0.2)
+      tilt
+    haml-rails (0.4)
+      actionpack (>= 3.1, < 4.1)
+      activesupport (>= 3.1, < 4.1)
+      haml (>= 3.1, < 4.1)
+      railties (>= 3.1, < 4.1)
     hashie (2.0.5)
     hike (1.2.2)
     httpclient (2.3.3)
@@ -274,10 +286,13 @@ DEPENDENCIES
   cane
   capybara
   coffee-rails (~> 3.2.1)
+  d3-rails
   debugger
   factory_girl_rails (~> 4.0)
   figaro
+  gon
   guard-rspec
+  haml-rails
   jquery-rails
   launchy
   mock_redis

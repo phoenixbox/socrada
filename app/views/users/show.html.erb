@@ -1,7 +1,14 @@
+<%= javascript_include_tag "processing" %>
 <div id="inner-content">
   <div id="interactive-nodes">
-    <%= render 'interactive'%>
+    <canvas id="neoviz"></canvas>
+    <section id="content">
+      <%#= render(:partial => 'interactive', :handlers => [:erb  ], :formats => [:js])%>
+      <%#= render(:partial => 'interactive',:formats => [:js])%>
+      <%= javascript_include_tag 'interactive'%>
+    </section><!-- end of #content-->
   </div><!-- end of #interactive-nodes-->
   <div id="chord">
+    <%= @node.inspect %>
   </div><!-- end of #chord-->
 </div><!-- end of #inner-content-->
