@@ -145,7 +145,7 @@ class User < ActiveRecord::Base
 
   def self.create_indexes
     indexes = User.neo.list_node_indexes
-    unless indexes.has_key?("users")
+    unless indexes
       User.neo.create_node_index("users")
     end
   end
@@ -238,7 +238,7 @@ class User < ActiveRecord::Base
       attributes << {:id => key.split(':').last, :name => key, :values => value.collect{|v| v[:values]} }
     end
 
-    attributes = [{"name" => "No Relationships","name" => "No Relationships","values" => [{"id" => "#{params[:id]}","name" => "No Relationships "}]}] if attributes.empty?
+    attributes = [{"name" => "No Relationships","name" => "No Relationships","values" => [{"id" => node,"name" => "No Relationships "}]}] if attributes.empty?
 
     @node = {:details_html => "<h2>Neo ID: #{User.node_id(node)}</h2>\n<p class='summary'>\n#{User.get_properties(node)}</p>\n",
               :data => {:attributes => attributes, 
