@@ -169,7 +169,6 @@ class User < ActiveRecord::Base
   end
 
   def self.create_graph
-    binding.pry
     User.create_indexes
     node = User.current_user_node rescue nil
     if node.nil?
