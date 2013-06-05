@@ -47,10 +47,7 @@ class User < ActiveRecord::Base
         twitter_access_token: auth["credentials"]["token"],
         twitter_access_secret: auth["credentials"]["secret"]}
       User.create_auth_methods
-      # call to Twitter on user creation
-
       User.get_twitter_data(user.screen_name, user)
-      # get_twitter_followers(user.screen_name)
     end
   end
 
@@ -62,8 +59,6 @@ class User < ActiveRecord::Base
       config.oauth_token_secret = user["authorizations"][:twitter_access_secret]
     end
   end
-
-  # ****************************************************************************
 
   def self.get_twitter_data(screen_name, user)
     twitter_friends = User.get_friends(screen_name, user)
@@ -137,27 +132,36 @@ class User < ActiveRecord::Base
                                 )
   end
 
-  # TODO: Remove instance reference if attr_reader works
-  def self.create_graph
-    # find or create users index
+# REFACTOR
+
+  def self.create_friends_nodes
+  end
+
+  def self.create_follower_nodes
+  end
+
+  def self.create_mutual_nodes
+  end
+
+  def self.create_indexes
     indexes = User.neo.list_node_indexes
     unless indexes.has_key?("users")
       User.neo.create_node_index("users")
     end
-    # does the current user node exist?
+  end
+
+  def self.create_graph
+    User.create_indexes
     node = User.current_user_node rescue nil
     if node.nil?
 
       @current_user_node = User.neo.create_node(:name=>User.current_user[:screen_name])
 
-      # ************
-      # add node to index
       User.add_to_users_index(@current_user_node)
 
       friends = @twitter_friends
       friends.each do |friend|
         friend_node = User.neo.create_node(:name=>friend)
-        # ************
         User.add_to_users_index(friend_node)
         User.neo.create_relationship("friends", @current_user_node, friend_node)
       end
